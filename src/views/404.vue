@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card max-width="375" class="mx-auto">
-      <v-img src="../assets/image/短发10.jpeg" height="300px" dark>
+      <v-img src="https://cdn.vuetifyjs.com/images/lists/ali.png" height="300px" dark>
         <v-row class="fill-height">
           <v-card-title>
             <v-btn dark icon>
@@ -22,7 +22,7 @@
           <v-spacer></v-spacer>
 
           <v-card-title class="white--text pl-12 pt-12">
-            <div class="display-1 pl-12 pt-12">kuzma</div>
+            <div class="display-1 pl-12 pt-12">mqxu</div>
           </v-card-title>
         </v-row>
       </v-img>
@@ -34,7 +34,7 @@
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>2673327266@qq.com</v-list-item-title>
+            <v-list-item-title>16422802@qq.com</v-list-item-title>
             <v-list-item-subtitle>Mail</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -47,7 +47,7 @@
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>soft 1851</v-list-item-title>
+            <v-list-item-title>NIIT SCS</v-list-item-title>
             <v-list-item-subtitle>Nanjing,Jiangsu</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
