@@ -8,6 +8,22 @@
         <mu-form-item label="密码" prop="password" :rules="passwordRules">
           <mu-text-field type="password" v-model="validateForm.password" prop="password"></mu-text-field>
         </mu-form-item>
+        <mu-row v-show="validateForm.username !== ''">
+          <mu-col span="4"
+            ><div class="grid-cell">
+              <mu-form-item label="验证码" prop="verifyCode" :rules="verifyCodeRules">
+                <mu-text-field v-model="verifyCode" prop="verifyCode"></mu-text-field
+              ></mu-form-item></div
+          ></mu-col>
+          <mu-col span="4"
+            ><div class="grid-cell">
+              <mu-button color="primary" @click="getCodeImg">{{ message }}</mu-button>
+            </div></mu-col
+          >
+          <mu-col span="4"
+            ><div class="grid-cell"><img ref="codeImg" v-show="codeShow" style="cursor: pointer; width: 120px;height: 50px;" /></div
+          ></mu-col>
+        </mu-row>
         <mu-form-item prop="isAgree" :rules="argeeRules">
           <mu-checkbox label="同意用户协议" v-model="validateForm.isAgree"></mu-checkbox>
         </mu-form-item>
@@ -37,13 +53,20 @@ export default {
         { validate: (val) => !!val, message: '必须填写密码' },
         { validate: (val) => val.length >= 3 && val.length <= 10, message: '密码长度大于3小于10' }
       ],
+      verifyCodeRules: [
+        { validate: (val) => !!val, message: '必须填写验证码' },
+        { validate: (val) => val.length >= 6, message: '6位数验证码' }
+      ],
       argeeRules: [{ validate: (val) => !!val, message: '必须同意用户协议' }],
       validateForm: {
         username: '',
         password: '',
         isAgree: false
       },
-      menuList: [],
+      verifyCode: '',
+      codeShow: false,
+      message: '获取验证码',
+      roles: {},
       openSimple: false
     }
   },
@@ -57,56 +80,66 @@ export default {
     closeSimpleDialog() {
       this.openSimple = false
     },
+    getCodeImg() {
+      this.codeShow = true
+      this.message = '重新获取'
+      this.axios({
+        method: 'get',
+        url: 'http://localhost:8080/captcha',
+        params: {
+          name: this.validateForm.username
+        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        responseType: 'blob'
+      }).then((res) => {
+        var img = this.$refs.codeImg
+        let url = window.webkitURL.createObjectURL(res.data)
+        console.log(res.data)
+        img.src = url
+      })
+    },
     submit() {
       this.$refs.form.validate().then((result) => {
         console.log('form valid: ', result)
-        //模拟后端接口数据
-        let user = {
-          userId: '2000100193',
-          username: 'taoranran',
-          userRole: 'admin',
-          avatar: 'https://avatars1.githubusercontent.com/u/42235689?s=60&u=b25100f60b66465b78fe97e36b2788715c216a6d&v=4'
-        }
-        this.menuList = [
-          { title: 'Dashboard', icon: 'mdi-view-dashboard', url: '/dashboard', subMenus: [] },
-          {
-            title: '音乐管理',
-            icon: 'mdi-music',
-            url: '',
-            subMenus: [
-              {
-                title: '歌单管理',
-                icon: 'mdi-domain',
-                url: '/music-list',
-                permissions: []
-              },
-              {
-                title: '歌曲管理',
-                icon: 'mdi-text',
-                url: '/music',
-                permissions: ['music:add', 'music:edit', 'music:delete']
-              }
-            ]
-          },
-          { title: 'About', icon: 'mdi-help-box', url: '/about', subMenus: [] }
-        ]
-        localStorage.setItem('token', 'EcIHTAWoGrmMVvTu2LPvuL-siq6hAfieVeehl-HTe_M')
-        localStorage.setItem('user', JSON.stringify(user))
-        localStorage.setItem('menuList', JSON.stringify(this.menuList))
-        this.$store.commit('setToken', 'EcIHTAWoGrmMVvTu2LPvuL-siq6hAfieVeehl-HTe_M')
-        this.$store.commit('setUser', user)
-        this.$store.commit('setMenuList', this.menuList)
-        this.$router.push('/')
-        this.openSimpleDialog()
+        this.axios({
+          method: 'post',
+          url: 'http://localhost:8080/sysAdmin/login',
+          data: {
+            name: this.validateForm.username,
+            password: this.validateForm.password,
+            verifyCode: this.verifyCode
+          }
+        }).then((res) => {
+          if (res.data.msg === '成功') {
+            alert('登录成功')
+            localStorage.setItem('token', res.data.data)
+            this.$store.commit('setToken', res.data.data)
+            // this.getRole(res.data.data)
+            this.$router.push('/')
+            this.openSimpleDialog()
+          } else {
+            alert(res.data.msg)
+            this.validateForm.code = ''
+          }
+        })
+        this.axios({
+          method: 'get',
+          url: 'http://localhost:8080/sysRole/' + 1
+        }).then((res) => {
+          localStorage.setItem('menuList', JSON.stringify(res.data.data.menus))
+          this.$store.commit('setMenuList', JSON.stringify(res.data.data.menus))
+          console.log(typeof localStorage.getItem('menuList'))
+        })
       })
     },
     clear() {
       this.$refs.form.clear()
-      this.validateForm = {
+      ;(this.validateForm = {
         username: '',
         password: '',
         isAgree: false
-      }
+      }),
+        (this.verifyCode = '')
     }
   },
   computed: {}
