@@ -89,8 +89,11 @@ export default {
     }
   },
   created() {
-    this.permissions = this.$store.state.menuList[1].subMenus[1].permissions
-    console.log(this.permissions)
+    let index = this.$route.query.index
+    let index1 = this.$route.query.index1
+    console.log(index, index1)
+    this.menus = JSON.parse(localStorage.getItem('menuList'))[index].subMenus[index1].subMenus
+    console.log(this.menus)
   }
 }
 </script>

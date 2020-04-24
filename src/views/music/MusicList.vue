@@ -1,6 +1,9 @@
 <template>
   <v-card max-width="400" class="mx-auto">
     <v-container class="pa-1">
+      <span v-for="(item, index) in menus" :key="index" class="gutter">
+        <mu-button :color="item.icon">{{ item.title }}</mu-button>
+      </span>
       <v-item-group v-model="selected" multiple>
         <v-row>
           <v-col v-for="(item, i) in items" :key="i" cols="12" md="6">
@@ -23,23 +26,30 @@
 <script>
 export default {
   name: 'MusicList',
-  data: () => ({
-    items: [
-      {
-        src: 'backgrounds/bg.jpg'
-      },
-      {
-        src: 'backgrounds/md.jpg'
-      },
-      {
-        src: 'backgrounds/bg-2.jpg'
-      },
-      {
-        src: 'backgrounds/md2.jpg'
-      }
-    ],
-    selected: []
-  })
+  data() {
+    return {
+      items: [
+        {
+          src: 'backgrounds/bg.jpg'
+        },
+        {
+          src: 'backgrounds/md.jpg'
+        },
+        {
+          src: 'backgrounds/bg-2.jpg'
+        },
+        {
+          src: 'backgrounds/md2.jpg'
+        }
+      ],
+      menus: []
+    }
+  },
+  created() {
+    let index = this.$route.query.index
+    let index1 = this.$route.query.index1
+    this.menus = JSON.parse(localStorage.getItem('menuList'))[index].subMenus[index1].subMenus
+  }
 }
 </script>
 

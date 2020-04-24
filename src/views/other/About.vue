@@ -1,7 +1,11 @@
 <template>
   <v-container>
     <v-card max-width="375" class="mx-auto">
-      <v-img src="../assets/image/短发10.jpeg" height="300px" dark>
+      <v-img
+        src="https://avatars2.githubusercontent.com/u/55436087?s=460&u=8ff4eee9bc998e5aadd3ecf815d0856452ec93e0&v=4"
+        height="300px"
+        dark
+      >
         <v-row class="fill-height">
           <v-card-title>
             <v-btn dark icon>

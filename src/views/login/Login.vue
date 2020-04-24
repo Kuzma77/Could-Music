@@ -1,5 +1,8 @@
 <template>
   <div class="bg">
+    <mu-alert color="error" @delete="alert = false" delete v-if="alert" transition="mu-scale-transition" class="alert">
+      <mu-icon left value="error!"></mu-icon> {{ message }}
+    </mu-alert>
     <mu-container>
       <mu-form ref="form" :model="validateForm" class="login-form">
         <mu-form-item label="用户名" prop="username" :rules="usernameRules">
@@ -9,19 +12,16 @@
           <mu-text-field type="password" v-model="validateForm.password" prop="password"></mu-text-field>
         </mu-form-item>
         <mu-row v-show="validateForm.username !== ''">
-          <mu-col span="4"
+          <mu-col span="9"
             ><div class="grid-cell">
               <mu-form-item label="验证码" prop="verifyCode" :rules="verifyCodeRules">
                 <mu-text-field v-model="verifyCode" prop="verifyCode"></mu-text-field
               ></mu-form-item></div
           ></mu-col>
-          <mu-col span="4"
-            ><div class="grid-cell">
-              <mu-button color="primary" @click="getCodeImg">{{ message }}</mu-button>
-            </div></mu-col
-          >
-          <mu-col span="4"
-            ><div class="grid-cell"><img ref="codeImg" v-show="codeShow" style="cursor: pointer; width: 120px;height: 50px;" /></div
+          <mu-col span="3"
+            ><div class="grid-cell" @click="getCodeImg">
+              <mu-button color="primary" v-show="!codeShow">获取验证码</mu-button>
+              <img ref="codeImg" v-show="codeShow" style="cursor: pointer; width: 120px;height: 50px;" /></div
           ></mu-col>
         </mu-row>
         <mu-form-item prop="isAgree" :rules="argeeRules">
@@ -32,9 +32,11 @@
           <mu-button @click="clear">重置</mu-button>
         </mu-form-item>
       </mu-form>
-      <mu-dialog title="Dialog" width="360" :open.sync="openSimple">
-        登录成功
-        <mu-button slot="actions" flat color="primary" @click="closeSimpleDialog">Close</mu-button>
+      <mu-dialog title="请选择您的身份进入系统" width="360" :open.sync="openSimple">
+        <mu-flex class="select-control-row" :key="'radio ' + index + 1" v-for="(role, index) in roles">
+          <mu-radio :value="index + 1" v-model="radio" :label="role.roleName"></mu-radio>
+        </mu-flex>
+        <mu-button slot="actions" flat color="primary" @click="gotoIndex(radio)">Sure</mu-button>
       </mu-dialog>
     </mu-container>
   </div>
@@ -63,29 +65,25 @@ export default {
         password: '',
         isAgree: false
       },
+      admin: null,
+      radio: 0,
       verifyCode: '',
       codeShow: false,
-      message: '获取验证码',
-      roles: {},
-      openSimple: false
+      message: '',
+      roles: [],
+      openSimple: false,
+      alert: false
     }
   },
   components: {},
   created() {},
   mounted() {},
   methods: {
-    openSimpleDialog() {
-      this.openSimple = true
-    },
-    closeSimpleDialog() {
-      this.openSimple = false
-    },
     getCodeImg() {
       this.codeShow = true
-      this.message = '重新获取'
       this.axios({
         method: 'get',
-        url: 'http://localhost:8080/captcha',
+        url: this.GLOBAL.baseUrl + '/captcha',
         params: {
           name: this.validateForm.username
         },
@@ -103,7 +101,7 @@ export default {
         console.log('form valid: ', result)
         this.axios({
           method: 'post',
-          url: 'http://localhost:8080/sysAdmin/login',
+          url: this.GLOBAL.baseUrl + '/sysAdmin/login',
           data: {
             name: this.validateForm.username,
             password: this.validateForm.password,
@@ -111,24 +109,36 @@ export default {
           }
         }).then((res) => {
           if (res.data.msg === '成功') {
-            alert('登录成功')
-            localStorage.setItem('token', res.data.data)
-            this.$store.commit('setToken', res.data.data)
-            // this.getRole(res.data.data)
-            this.$router.push('/')
-            this.openSimpleDialog()
+            localStorage.setItem('token', res.data.data.token)
+            this.$store.commit('setToken', res.data.data.token)
+            let admin = {
+              id: res.data.data.admin.id,
+              name: res.data.data.admin.name,
+              role: res.data.data.admin.roles, //有两个角色，暂时先用第一个
+              avatar: res.data.data.admin.avatar
+            }
+            //存admin信息
+            localStorage.setItem('admin', JSON.stringify(admin))
+            this.$store.commit('setAdmin', JSON.stringify(admin))
+            this.roles = res.data.data.admin.roles
+            //角色数量超过1个
+            if (this.roles.length > 1) {
+              this.openSimple = true
+            } else {
+              //只有一个角色
+              const roleId = res.data.data.admin.roles[0].roleId
+              this.$router.push({
+                path: '/',
+                query: {
+                  roleId: roleId
+                }
+              })
+            }
           } else {
-            alert(res.data.msg)
+            this.alert = true
+            this.message = res.data.msg
             this.validateForm.code = ''
           }
-        })
-        this.axios({
-          method: 'get',
-          url: 'http://localhost:8080/sysRole/' + 1
-        }).then((res) => {
-          localStorage.setItem('menuList', JSON.stringify(res.data.data.menus))
-          this.$store.commit('setMenuList', JSON.stringify(res.data.data.menus))
-          console.log(typeof localStorage.getItem('menuList'))
         })
       })
     },
@@ -140,6 +150,15 @@ export default {
         isAgree: false
       }),
         (this.verifyCode = '')
+    },
+    gotoIndex(roleId) {
+      //带着用户选择的roleId跳到首页
+      this.$router.push({
+        path: '/',
+        query: {
+          roleId: roleId
+        }
+      })
     }
   },
   computed: {}
@@ -154,6 +173,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 .login-form {
   max-width: 500px;
@@ -161,5 +181,26 @@ export default {
   background-color: #fff;
   border-radius: 10px;
   padding: 10px;
+}
+.select-control-row {
+  padding: 8px 0;
+}
+.alert {
+  position: absolute;
+  top: 20px;
+  left: 40%;
+  height: 50px;
+  width: 300px;
+}
+.mu-scale-transition-enter-active,
+.mu-scale-transition-leave-active {
+  transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  backface-visibility: hidden;
+}
+
+.mu-scale-transition-enter,
+.mu-scale-transition-leave-active {
+  transform: scale(0);
+  opacity: 0;
 }
 </style>

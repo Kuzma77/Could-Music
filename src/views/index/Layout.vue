@@ -2,7 +2,7 @@
   <v-row class="bc">
     <v-col cols="2">
       <v-card height="700" width="256">
-        <v-navigation-drawer permanen :dark="dark" :src="bg">
+        <v-navigation-drawer v-model="drawer" :dark="dark" :src="bg">
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title
@@ -18,51 +18,43 @@
           </v-list-item>
           <v-list-item two-line>
             <v-list-item-avatar>
-              <img src="../assets/image/短发1.jpg" />
+              <img :src="admin.avatar" />
             </v-list-item-avatar>
             <v-list-item-content>
-              <v-list-item-title><h3 class="gutter">Kely Kuzma</h3> </v-list-item-title>
-              <v-list-item-subtitle class="gutter">Super Admin</v-list-item-subtitle>
+              <v-list-item-title
+                ><h3 class="gutter">{{ admin.name }}</h3>
+              </v-list-item-title>
+              <v-list-item-subtitle class="gutter">身份:{{ admin.role[0].roleName }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
           <v-divider></v-divider>
 
-          <v-list dense nav>
-            <v-list-item v-for="item in items" :key="item.title" link>
-              <template v-if="item.subMenus.length === 0">
+          <v-list>
+            <v-list-group v-for="(item, index) in items" :key="index">
+              <template v-slot:activator v-if="item.type == 1">
                 <v-list-item-icon>
                   <v-icon>{{ item.icon }}</v-icon>
                 </v-list-item-icon>
-                <v-list-item-content>
-                  <router-link :to="item.url">
-                    <v-list-item-title class="gutter">{{ item.title }}</v-list-item-title>
+                <v-list-item-content v-if="item.subMenus.length > 0">
+                  <v-list-item-title class="link">{{ item.title }}</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-content v-else>
+                  <router-link :to="item.path">
+                    <v-list-item-title class="link">{{ item.title }}</v-list-item-title>
                   </router-link>
                 </v-list-item-content>
               </template>
-              <template v-else>
-                <v-list-group value="true" style="margin-left:-10px;">
-                  <template v-slot:activator>
-                    <v-list-item-icon>
-                      <v-icon>{{ item.icon }}</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title
-                      ><h2>{{ item.title }}</h2></v-list-item-title
-                    >
-                  </template>
-                  <v-list-item-content style="margin-left:20px;">
-                    <v-list-item v-for="(menu, i) in item.subMenus" :key="i" link>
-                      <v-list-item-icon class="gutter">
-                        <v-icon :v-text="menu.icon">{{ menu.icon }}</v-icon>
-                      </v-list-item-icon>
-                      <router-link :to="menu.url">
-                        <v-list-item-title :v-text="menu.title" class="gutter">{{ menu.title }}</v-list-item-title>
-                      </router-link>
-                    </v-list-item>
-                  </v-list-item-content>
-                </v-list-group>
-              </template>
-            </v-list-item>
+
+              <v-list-item v-for="(subItem, index1) in item.subMenus" :key="index1">
+                <v-list-item-icon style="margin-left:20px;">
+                  <v-icon>{{ subItem.icon }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title class="link" @click="gotoSubPage(subItem.path, index, index1)">{{ subItem.title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-group>
           </v-list>
         </v-navigation-drawer>
       </v-card>
@@ -107,8 +99,9 @@ export default {
   name: 'Layout',
   data() {
     return {
-      user: this.$store.state.user,
-      items: this.$store.state.menuList1,
+      admin: JSON.parse(localStorage.getItem('admin')),
+      items: [],
+      drawer: true,
       background: true,
       dark: false,
       value: true
@@ -116,15 +109,34 @@ export default {
   },
   components: {},
   created() {
-    console.log(typeof this.items)
+    //取得前一个页面传过来的roleId
+    let roleId = this.$route.query.roleId
+    console.log(roleId)
+    //携带roleId和token（全局拦截器已经设置）向后端请求菜单
+    this.axios.get(this.GLOBAL.baseUrl + '/sysRole?roleId=' + roleId).then((res) => {
+      this.$store.commit('setMenuList', JSON.stringify(res.data.data.menus))
+      localStorage.setItem('menuList', JSON.stringify(res.data.data.menus))
+      this.items = res.data.data.menus
+    })
   },
   mounted() {},
   methods: {
     logout() {
-      alert('logout')
       localStorage.removeItem('token')
-      this.$store.commit('setUser', null)
+      localStorage.removeItem('admin')
+      localStorage.removeItem('menuList')
       this.$router.push('/login')
+      // this.$store.commit('setUser', null)
+    },
+    gotoSubPage(path, index, index1) {
+      console.log(path, index, index1)
+      this.$router.push({
+        path: path,
+        query: {
+          index: index,
+          index1: index1
+        }
+      })
     }
   },
   computed: {

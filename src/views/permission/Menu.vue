@@ -14,7 +14,7 @@ export default {
   name: 'Menu',
   data() {
     return {
-      permissions: this.$store.state.menuList1[2].subMenus[1].permissions
+      permissions: this.$store.state.menuList1[1].subMenus[1].permissions
     }
   },
   components: {},
