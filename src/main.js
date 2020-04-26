@@ -7,7 +7,8 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
-
+import Message from 'muse-ui-message'
+Vue.use(Message)
 Vue.use(MuseUI)
 
 Vue.use(VueAxios, axios)

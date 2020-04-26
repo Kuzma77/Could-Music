@@ -6,7 +6,7 @@
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title
-                class="title"
+                class="title cursor"
                 @click="
                   dark = !dark
                   background = !background
@@ -24,7 +24,8 @@
               <v-list-item-title
                 ><h3 class="gutter">{{ admin.name }}</h3>
               </v-list-item-title>
-              <v-list-item-subtitle class="gutter">身份:{{ admin.role[0].roleName }}</v-list-item-subtitle>
+              <v-list-item-subtitle class="gutter" v-if="this.$route.query.roleId === 1">admin</v-list-item-subtitle>
+              <v-list-item-subtitle class="gutter" v-if="this.$route.query.roleId === 2">editor</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
@@ -40,9 +41,7 @@
                   <v-list-item-title class="link">{{ item.title }}</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-content v-else>
-                  <router-link :to="item.path">
-                    <v-list-item-title class="link">{{ item.title }}</v-list-item-title>
-                  </router-link>
+                  <v-list-item-title class="link">{{ item.title }}</v-list-item-title>
                 </v-list-item-content>
               </template>
 
@@ -50,7 +49,7 @@
                 <v-list-item-icon style="margin-left:20px;">
                   <v-icon>{{ subItem.icon }}</v-icon>
                 </v-list-item-icon>
-                <v-list-item-content>
+                <v-list-item-content class="cursor">
                   <v-list-item-title class="link" @click="gotoSubPage(subItem.path, index, index1)">{{ subItem.title }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -150,5 +149,8 @@ export default {
 <style scoped lang="scss">
 .bc {
   background-color: rgb(238, 238, 238);
+}
+.cursor {
+  cursor: pointer;
 }
 </style>

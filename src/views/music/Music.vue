@@ -1,9 +1,10 @@
 <template>
   <div style="padding-top:10px;">
-    <span v-for="(item, index) in permissions" :key="index" class="gutter">
-      <mu-button color="teal" v-if="item === 'music:add'">添加歌曲</mu-button>
-      <mu-button color="success" v-if="item === 'music:edit'">编辑歌曲</mu-button>
-      <mu-button color="error" v-if="item === 'music:delete'">删除歌曲</mu-button>
+    <span v-for="(item, index) in menus" :key="index" class="gutter">
+      <mu-button color="teal" v-if="item.title === '搜索'">搜索</mu-button>
+      <mu-button color="success" v-if="item.title === '新增'">新增</mu-button>
+      <mu-button color="error" v-if="item.title === '导入'">导入</mu-button>
+      <mu-button color="error" v-if="item.title === '导出'">导出</mu-button>
     </span>
     <v-card>
       <v-card-title>
@@ -21,7 +22,7 @@ export default {
   name: 'Music',
   data() {
     return {
-      permissions: [],
+      menus: [],
       search: '',
       headers: [
         {
