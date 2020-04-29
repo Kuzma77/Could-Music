@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+// import store from '../store/index.js'
+//vuetify提供的定位功能，回到上一个路由的时候可以定位到之前的位置
+import goTo from 'vuetify/es5/services/goto'
 import Layout from '../views/index/Layout.vue'
 import Dashboard from '../views/index/Dashboard.vue'
 
@@ -22,11 +25,11 @@ const routes = [
         name: 'About',
         component: () => import('../views/other/About.vue')
       },
-      // {
-      //   path: '/profile',
-      //   name: 'Profile',
-      //   component: () => import('../views/other/Profile.vue')
-      // },
+      {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('../views/other/Profile.vue')
+      },
       {
         path: '/music-type',
         name: 'MusicType',
@@ -67,10 +70,21 @@ const routes = [
   {
     path: '/404',
     name: 'Page404',
-    component: () => import('../views/other/404.vue')
+    component: () => import('../views/other/Page404.vue')
   }
 ]
+
 const router = new VueRouter({
+  scrollBehavior: (to, from, savedPosition) => {
+    let scrollTo = 0
+
+    if (to.hash) {
+      scrollTo = to.hash
+    } else if (savedPosition) {
+      scrollTo = savedPosition.y
+    }
+    return goTo(scrollTo)
+  },
   routes
 })
 

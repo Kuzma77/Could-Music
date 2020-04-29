@@ -127,12 +127,16 @@ export default {
             } else {
               //只有一个角色
               const roleId = res.data.data.admin.roles[0].roleId
-              this.$router.push({
-                path: '/',
-                query: {
-                  roleId: roleId
-                }
-              })
+              //将roleId存入全局
+              localStorage.setItem('roleId', roleId)
+              this.$store.commit('setRoleId', roleId)
+              this.$router.push('/')
+              // this.$router.push({
+              //   path: '/',
+              //   query: {
+              //     roleId: roleId
+              //   }
+              // })
             }
           } else {
             this.alert = true
@@ -153,12 +157,15 @@ export default {
     },
     gotoIndex(roleId) {
       //带着用户选择的roleId跳到首页
-      this.$router.push({
-        path: '/',
-        query: {
-          roleId: roleId
-        }
-      })
+      // this.$router.push({
+      //   path: '/',
+      //   query: {
+      //     roleId: roleId
+      //   }
+      // })
+      //将roleId存入全局
+      localStorage.setItem('roleId', roleId)
+      this.$router.push('/')
     }
   },
   computed: {}

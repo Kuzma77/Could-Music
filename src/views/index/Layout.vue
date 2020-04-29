@@ -32,25 +32,29 @@
           <v-divider></v-divider>
 
           <v-list>
-            <v-list-group v-for="(item, index) in items" :key="index">
-              <template v-slot:activator v-if="item.type == 1">
+            <v-list-group v-for="(menu, parent) in menuList" :key="parent" v-model="menu.active" no-action>
+              <template v-slot:activator v-ripple>
                 <v-list-item-icon>
-                  <v-icon>{{ item.icon }}</v-icon>
+                  <v-icon>{{ menu.icon }}</v-icon>
                 </v-list-item-icon>
-                <v-list-item-content v-if="item.subMenus.length > 0">
-                  <v-list-item-title class="link">{{ item.title }}</v-list-item-title>
+                <v-list-item-content v-if="menu.subMenus.length === 0">
+                  <router-link :to="menu.path" v-if="menu.subMenus.length === 0">
+                    <v-list-item-title class="link">{{ menu.title }}</v-list-item-title>
+                  </router-link>
                 </v-list-item-content>
                 <v-list-item-content v-else>
-                  <v-list-item-title class="link">{{ item.title }}</v-list-item-title>
+                  <v-list-item-title class="link">{{ menu.title }}</v-list-item-title>
                 </v-list-item-content>
               </template>
 
-              <v-list-item v-for="(subItem, index1) in item.subMenus" :key="index1">
-                <v-list-item-icon style="margin-left:20px;">
-                  <v-icon>{{ subItem.icon }}</v-icon>
+              <v-list-item v-for="(subMenu, current) in menu.subMenus" :key="current" v-ripple link>
+                <v-list-item-icon>
+                  <v-icon>{{ subMenu.icon }}</v-icon>
                 </v-list-item-icon>
-                <v-list-item-content class="cursor">
-                  <v-list-item-title class="link" @click="gotoSubPage(subItem.path, index, index1)">{{ subItem.title }}</v-list-item-title>
+                <v-list-item-content>
+                  <router-link :to="subMenu.path">
+                    <v-list-item-title class="link">{{ subMenu.title }}</v-list-item-title>
+                  </router-link>
                 </v-list-item-content>
               </v-list-item>
             </v-list-group>
@@ -98,8 +102,10 @@ export default {
   name: 'Layout',
   data() {
     return {
-      admin: JSON.parse(localStorage.getItem('admin')),
-      items: [],
+      parent: 0,
+      current: 0,
+      admin: this.$store.state.admin,
+      menuList: [],
       drawer: true,
       background: true,
       dark: false,
@@ -109,13 +115,14 @@ export default {
   components: {},
   created() {
     //取得前一个页面传过来的roleId
-    let roleId = this.$route.query.roleId
-    console.log(roleId)
-    //携带roleId和token（全局拦截器已经设置）向后端请求菜单
-    this.axios.get(this.GLOBAL.baseUrl + '/sysRole?roleId=' + roleId).then((res) => {
-      this.$store.commit('setMenuList', JSON.stringify(res.data.data.menus))
+    // let roleId = this.$route.query.roleId
+    //console.log(roleId)
+    // alert(localStorage.getItem('roleId'))
+    this.axios.get(this.GLOBAL.baseUrl + '/sysRole?roleId=' + localStorage.getItem('roleId')).then((res) => {
+      console.log(res)
+      this.menuList = res.data.data.menus
       localStorage.setItem('menuList', JSON.stringify(res.data.data.menus))
-      this.items = res.data.data.menus
+      this.$store.commit('setMenuList', JSON.stringify(res.data.data.menus))
     })
   },
   mounted() {},
@@ -123,19 +130,10 @@ export default {
     logout() {
       localStorage.removeItem('token')
       localStorage.removeItem('admin')
+      localStorage.removeItem('roleId')
       localStorage.removeItem('menuList')
       this.$router.push('/login')
       // this.$store.commit('setUser', null)
-    },
-    gotoSubPage(path, index, index1) {
-      console.log(path, index, index1)
-      this.$router.push({
-        path: path,
-        query: {
-          index: index,
-          index1: index1
-        }
-      })
     }
   },
   computed: {

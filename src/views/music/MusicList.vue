@@ -59,7 +59,9 @@
 export default {
   data() {
     return {
+      menuList: this.$store.state.menuList,
       names: [],
+      menus: [],
       search: '',
       filter: {},
       page: 1,
@@ -132,9 +134,15 @@ export default {
     }
   },
   created() {
-    let index = this.$route.query.index
-    let index1 = this.$route.query.index1
-    this.menus = JSON.parse(localStorage.getItem('menuList'))[index].subMenus[index1].subMenus
+    for (let i = 0; i < this.menuList.length; i++) {
+      let parent = this.menuList[i]
+      for (let j = 0; j < parent.subMenus.length; j++) {
+        let child = this.menuList[i]
+        if (child.subMenus[j].path === this.$options.name) {
+          this.menus = child.subMenus[j].subMenus
+        }
+      }
+    }
     this.axios({
       method: 'post',
       url: this.GLOBAL.baseUrl + '/songList/getByPage',
