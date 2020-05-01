@@ -30,6 +30,7 @@
         <mu-form-item>
           <mu-button color="primary" @click="submit">提交</mu-button>
           <mu-button @click="clear">重置</mu-button>
+          <mu-button @click="login()">github第三方登录</mu-button>
         </mu-form-item>
       </mu-form>
       <mu-dialog title="请选择您的身份进入系统" width="360" :open.sync="openSimple">
@@ -61,8 +62,8 @@ export default {
       ],
       argeeRules: [{ validate: (val) => !!val, message: '必须同意用户协议' }],
       validateForm: {
-        username: '',
-        password: '',
+        username: '18805167526',
+        password: '1234567',
         isAgree: false
       },
       admin: null,
@@ -103,7 +104,7 @@ export default {
           method: 'post',
           url: this.GLOBAL.baseUrl + '/sysAdmin/login',
           data: {
-            name: this.validateForm.username,
+            account: this.validateForm.username,
             password: this.validateForm.password,
             verifyCode: this.verifyCode
           }
@@ -113,6 +114,7 @@ export default {
             this.$store.commit('setToken', res.data.data.token)
             let admin = {
               id: res.data.data.admin.id,
+              account: res.data.data.admin.account,
               name: res.data.data.admin.name,
               role: res.data.data.admin.roles, //有两个角色，暂时先用第一个
               avatar: res.data.data.admin.avatar
@@ -166,6 +168,13 @@ export default {
       //将roleId存入全局
       localStorage.setItem('roleId', roleId)
       this.$router.push('/')
+    },
+    login() {
+      alert('click')
+      const authorize_uri = 'https://github.com/login/oauth/authorize'
+      const client_id = '029605ac4b8d64a69874'
+      const redirect_url = 'http://localhost:8080/login/oauth2/code/github'
+      window.location.href = `${authorize_uri}?client_id=${client_id}&redirect_url=${redirect_url}`
     }
   },
   computed: {}

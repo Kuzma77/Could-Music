@@ -91,6 +91,7 @@ export default {
     }
   },
   created() {
+    alert(this.$options.name)
     for (let i = 0; i < this.menuList.length; i++) {
       let parent = this.menuList[i]
       for (let j = 0; j < parent.subMenus.length; j++) {

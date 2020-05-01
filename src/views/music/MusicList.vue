@@ -7,12 +7,9 @@
         <mu-list-item-content v-html="scope.highlight"></mu-list-item-content>
       </template>
     </mu-auto-complete>
-    <span v-for="(item, index) in menus" :key="index" class="gutter">
-      <mu-button color="teal" v-if="item.title === '搜索'">搜索</mu-button>
-      <mu-button color="error" v-if="item.title === '导出'">导出</mu-button>
-      <mu-button color="success" v-if="item.title === '新增'">创建</mu-button>
-      <mu-button color="error" v-if="item.title === '删除'">删除</mu-button>
-    </span>
+    <v-btn v-for="(item, index) in menus" :key="index" :color="item.icon" class="mr-3" @click="handleClick(item.title)" large>
+      {{ item.title }}
+    </v-btn>
     <v-data-iterator :items="allItems" :items-per-page.sync="itemsPerPage" :page="page" :search="search" hide-default-footer>
       <template v-slot:default="props">
         <mu-row>
@@ -57,6 +54,7 @@
 </template>
 <script>
 export default {
+  name: 'MusicList',
   data() {
     return {
       menuList: this.$store.state.menuList,
@@ -134,12 +132,16 @@ export default {
     }
   },
   created() {
+    alert(this.$options.name)
     for (let i = 0; i < this.menuList.length; i++) {
       let parent = this.menuList[i]
       for (let j = 0; j < parent.subMenus.length; j++) {
         let child = this.menuList[i]
+        console.log(child.subMenus[j].path)
+        console.log(this.$options.name)
         if (child.subMenus[j].path === this.$options.name) {
           this.menus = child.subMenus[j].subMenus
+          console.log(JSON.stringify(this.menus))
         }
       }
     }

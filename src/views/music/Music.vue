@@ -93,7 +93,7 @@ export default {
     }
   },
   created() {
-    console.log(this.$options.name)
+    alert(this.$options.name)
     for (let i = 0; i < this.menuList.length; i++) {
       let parent = this.menuList[i]
       for (let j = 0; j < parent.subMenus.length; j++) {

@@ -52,7 +52,7 @@
                   <v-icon>{{ subMenu.icon }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <router-link :to="subMenu.path">
+                  <router-link :to="{ name: subMenu.path }">
                     <v-list-item-title class="link">{{ subMenu.title }}</v-list-item-title>
                   </router-link>
                 </v-list-item-content>
@@ -72,11 +72,13 @@
           <mu-menu slot="right">
             <mu-button flat>My</mu-button>
             <mu-list slot="content">
-              <mu-list-item button>
-                <mu-list-item-content>
-                  <mu-list-item-title>MyProfile</mu-list-item-title>
-                </mu-list-item-content>
-              </mu-list-item>
+              <router-link to="/profile">
+                <mu-list-item button>
+                  <mu-list-item-content>
+                    <mu-list-item-title>MyProfile</mu-list-item-title>
+                  </mu-list-item-content>
+                </mu-list-item>
+              </router-link>
               <mu-list-item button>
                 <mu-list-item-content>
                   <mu-list-item-title>Settings</mu-list-item-title>
