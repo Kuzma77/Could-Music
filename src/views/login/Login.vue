@@ -62,8 +62,8 @@ export default {
       ],
       argeeRules: [{ validate: (val) => !!val, message: '必须同意用户协议' }],
       validateForm: {
-        username: '18805167526',
-        password: '1234567',
+        username: '18805167527',
+        password: '123456',
         isAgree: false
       },
       admin: null,
@@ -73,7 +73,8 @@ export default {
       message: '',
       roles: [],
       openSimple: false,
-      alert: false
+      alert: false,
+      getUserInfoByAccessToken: ''
     }
   },
   components: {},
@@ -170,11 +171,31 @@ export default {
       this.$router.push('/')
     },
     login() {
-      alert('click')
       const authorize_uri = 'https://github.com/login/oauth/authorize'
       const client_id = '029605ac4b8d64a69874'
+      const client_secret = '7744fb940c8f98d9e1d5abba390d17f247d5b0a4'
       const redirect_url = 'http://localhost:8080/login/oauth2/code/github'
+      // alert('click')
       window.location.href = `${authorize_uri}?client_id=${client_id}&redirect_url=${redirect_url}`
+      alert('click')
+      console.log(this.$route.query.code)
+      const code = this.$route.query.code
+      const tokenResponse = this.axios({
+        method: 'get',
+        url: 'https://github.com/login/oauth/access_token',
+        params: {
+          client_id,
+          client_secret,
+          code
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          accept: 'application/json'
+        }
+      })
+      if (tokenResponse) {
+        this.getUserInfoByAccessToken(tokenResponse.data.access_token)
+      }
     }
   },
   computed: {}

@@ -8,6 +8,8 @@ import vuetify from './plugins/vuetify'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 import Message from 'muse-ui-message'
+import Oss from './utils/oss'
+Vue.use(Oss)
 Vue.use(Message)
 Vue.use(MuseUI)
 

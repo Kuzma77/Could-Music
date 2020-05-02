@@ -18,7 +18,8 @@
           </v-list-item>
           <v-list-item two-line>
             <v-list-item-avatar>
-              <img :src="admin.avatar" />
+              <img :src="admin.avatar" @click="handleClick()" />
+              <input type="file" @change="uploadImage($event)" style="display: none;" id="fileBox1" />
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title
@@ -106,7 +107,7 @@ export default {
     return {
       parent: 0,
       current: 0,
-      admin: this.$store.state.admin,
+      //admin: this.$store.state.admin,
       menuList: [],
       drawer: true,
       background: true,
@@ -136,11 +137,62 @@ export default {
       localStorage.removeItem('menuList')
       this.$router.push('/login')
       // this.$store.commit('setUser', null)
+    },
+    handleClick: function() {
+      document.getElementById('fileBox1').click()
+    },
+    uploadImage() {
+      let formData = new FormData()
+      formData.append('file', event.target.files[0])
+      this.axios({
+        method: 'post',
+        url: this.GLOBAL.baseUrl + '/api/uploadFile',
+        headers: {
+          'Content-Type': 'multipart/formdata'
+        },
+        data: formData
+      }).then((res) => {
+        console.log(res.data.data)
+        this.admin.avatar = res.data.data
+        this.changeAvatar()
+      })
+      // this.Oss.uploadFile(event.target.files[0]).then((res) => {
+      //   console.log(res)
+      // })
+    },
+    changeAvatar() {
+      this.axios({
+        method: 'post',
+        url: this.GLOBAL.baseUrl + '/sysAdmin/update',
+        data: {
+          id: this.admin.id,
+          account: this.admin.account,
+          name: this.admin.name,
+          avatar: this.admin.avatar
+        }
+      }).then((res) => {
+        if (res.data.msg === '成功') {
+          let admin1 = {
+            id: this.admin.id,
+            account: this.admin.account,
+            name: this.admin.name,
+            role: this.admin.roles,
+            avatar: this.admin.avatar
+          }
+          localStorage.setItem('admin', JSON.stringify(admin1))
+          this.$store.commit('setAdmin', JSON.stringify(admin1))
+          this.$store.commit('refreshAdmin', JSON.parse(window.localStorage.getItem('admin')))
+          this.admin = admin1
+        }
+      })
     }
   },
   computed: {
     bg() {
       return this.background ? 'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg' : undefined
+    },
+    admin() {
+      return this.$store.state.admin
     }
   }
 }

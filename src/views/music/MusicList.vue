@@ -79,18 +79,19 @@ export default {
   },
   methods: {
     pageChange() {
-      this.axios({
-        method: 'post',
-        url: this.GLOBAL.baseUrl + '/songList/getByPage',
-        data: {
-          currentPage: this.page,
-          pageSize: this.itemsPerPage
-        }
-      }).then((res) => {
-        console.log(res)
-        this.items = res.data.data
-        console.log(this.items)
-      })
+      // alert('111')
+      // this.axios({
+      //   method: 'post',
+      //   url: this.GLOBAL.baseUrl + '/songList/getByPage',
+      //   data: {
+      //     currentPage: this.page,
+      //     pageSize: this.itemsPerPage
+      //   }
+      // }).then((res) => {
+      //   console.log(res)
+      //   this.items = res.data.data
+      //   console.log(this.items)
+      // })
     },
     showSongs(id) {
       this.openScroll = true
