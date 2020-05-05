@@ -7,9 +7,9 @@
         <mu-list-item-content v-html="scope.highlight"></mu-list-item-content>
       </template>
     </mu-auto-complete>
-    <v-btn v-for="(item, index) in menus" :key="index" :color="item.icon" class="mr-3" @click="handleClick(item.title)" large>
+    <mu-button v-for="(item, index) in menus" :key="index" :color="item.icon" class="mr-3" @click="handleClick(item.title)" large>
       {{ item.title }}
-    </v-btn>
+    </mu-button>
     <v-data-iterator :items="allItems" :items-per-page.sync="itemsPerPage" :page="page" :search="search" hide-default-footer>
       <template v-slot:default="props">
         <mu-row>

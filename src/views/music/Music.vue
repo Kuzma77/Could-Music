@@ -3,9 +3,9 @@
     <v-row>
       <v-col md="6" class="d-flex flex-row">
         <v-text-field v-model="keywords" :counter="10" label="keywords" required></v-text-field>
-        <v-btn v-for="(item, index) in menus" :key="index" :color="item.icon" class="mr-3" @click="handleClick(item.title)" large>
+        <mu-button v-for="(item, index) in menus" :key="index" :color="item.icon" class="mr-3" @click="handleClick(item.title)" large>
           {{ item.title }}
-        </v-btn>
+        </mu-button>
       </v-col>
     </v-row>
     <v-card>

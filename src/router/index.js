@@ -71,6 +71,11 @@ const routes = [
     path: '/404',
     name: 'Page404',
     component: () => import('../views/other/Page404.vue')
+  },
+  {
+    path: '/auth',
+    name: 'Auth',
+    component: () => import('../views/other/Auth.vue')
   }
 ]
 

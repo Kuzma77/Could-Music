@@ -28,10 +28,10 @@ router.beforeEach((to, from, next) => {
   }
   let token = localStorage.getItem('token')
   let isLogin
-  if (!token) {
-    isLogin = false
-  } else {
+  if (token || to.path === '/auth') {
     isLogin = true
+  } else {
+    isLogin = false
   }
   if (!isLogin) {
     if (to.path !== '/login') {

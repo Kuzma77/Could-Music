@@ -128,6 +128,8 @@
         <v-icon color="indigo" @click="show = !show">mdi-account-circle</v-icon>
       </v-list-item-icon>
       <br />
+      <mu-text-field type="text" label="短信验证码" v-model="psDto.sms"></mu-text-field>
+      <v-btn small @click="sendSms()" id="sms-btn">{{ msg }}</v-btn>
       <mu-button slot="actions" flat color="primary" @click="confirm()">Sure</mu-button>
     </mu-dialog>
     <mu-drawer :open.sync="open" :docked="docked" :right="position === 'right'" class="my-drawer">
@@ -171,13 +173,20 @@ export default {
       lazy: false,
       show: true,
       file: '',
-      files: []
+      files: [],
+      psDto: {
+        mobile: '',
+        sms: ''
+      },
+      msg: '获取短信验证码',
+      time: 60
     }
   },
   components: {},
   created() {
     this.name = this.admin.name
     this.account = this.admin.account
+    this.psDto.mobile = this.admin.account
   },
   mounted() {},
   methods: {
@@ -216,25 +225,41 @@ export default {
       this.$refs.form.resetValidation()
     },
     confirm() {
-      this.$confirm('确定修改密码？', '提示', {
-        type: 'error'
-      }).then(({ result }) => {
-        if (result) {
-          this.axios({
-            method: 'post',
-            url: this.GLOBAL.baseUrl + '/sysAdmin/updatePassword',
-            params: {
-              password: this.password,
-              id: this.admin.id
-            }
-          }).then((res) => {
-            if (res.data.msg === '成功') {
-              this.openSimple = false
-              this.password = ''
-            } else {
-              alert('修改失败')
+      this.axios({
+        method: 'post',
+        url: this.GLOBAL.baseUrl + '/sms/check',
+        data: {
+          mobile: this.psDto.mobile,
+          sms: this.psDto.sms
+        }
+      }).then((res) => {
+        if (res.data.msg === '成功') {
+          this.$confirm('确定修改密码？', '提示', {
+            type: 'error'
+          }).then(({ result }) => {
+            if (result) {
+              this.axios({
+                method: 'post',
+                url: this.GLOBAL.baseUrl + '/sysAdmin/updatePassword',
+                params: {
+                  password: this.password,
+                  id: this.admin.id
+                }
+              }).then((res) => {
+                if (res.data.msg === '成功') {
+                  this.openSimple = false
+                  this.password = ''
+                  this.psDto.sms = ''
+                } else {
+                  alert('修改失败')
+                  this.password = ''
+                  this.psDto.sms = ''
+                }
+              })
             }
           })
+        } else {
+          alert(res.data.msg)
         }
       })
     },
@@ -301,12 +326,38 @@ export default {
       }
       this.files = []
       alert('上传成功')
+    },
+    sendSms() {
+      var btn = document.getElementById('sms-btn')
+      const time = setInterval(() => {
+        btn.disabled = true
+        this.msg = '重新发送(' + this.time + ')'
+        btn.style.backgroundColor = 'grey'
+        this.time--
+        if (this.time < 0) {
+          clearInterval(time)
+          this.time = 60
+          this.msg = '获取短信验证码'
+          btn.disabled = false
+        }
+      }, 1000)
+      this.axios({
+        method: 'post',
+        url: this.GLOBAL.baseUrl + '/sms/send',
+        data: {
+          mobile: this.psDto.mobile,
+          sms: this.psDto.sms
+        }
+      }).then((res) => {
+        if (res.data.msg === '成功') {
+          alert('短信验证码发送成功')
+          this.msg = '重新发送(' + this.timeOut + ')'
+        } else {
+          alert(res.data.msg)
+        }
+      })
     }
   },
-  // watch: {
-  //   admin: '',
-  //   immediate: true
-  // },
   computed: {
     admin() {
       return this.$store.state.admin
