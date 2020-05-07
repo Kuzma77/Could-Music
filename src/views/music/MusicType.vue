@@ -42,7 +42,7 @@
       <mu-col span="3" v-for="(song_list, index) in types[typeId].song_lists" :key="index"
         ><div class="grid-cell">
           <template>
-            <v-card class="mx-auto" max-width="400" style="margin:5px">
+            <v-card class="mx-auto ma-lg-5" max-width="400" min-height="400">
               <v-img class="white--text align-end" height="200px" :src="song_list.thumbnail"> </v-img>
 
               <v-card-subtitle class="pb-0">{{ song_list.songListName }}</v-card-subtitle>
@@ -91,7 +91,6 @@ export default {
     }
   },
   created() {
-    alert(this.$options.name)
     for (let i = 0; i < this.menuList.length; i++) {
       let parent = this.menuList[i]
       for (let j = 0; j < parent.subMenus.length; j++) {

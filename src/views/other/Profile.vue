@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-app>
     <mu-row class="my-theme">
       <mu-col span="6"
         ><div class="grid-cell">
@@ -150,7 +150,7 @@
         </mu-button>
       </v-form>
     </mu-drawer>
-  </div>
+  </v-app>
 </template>
 
 <script>

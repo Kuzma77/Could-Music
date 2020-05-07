@@ -3,9 +3,12 @@
     <v-row>
       <v-col md="6" class="d-flex flex-row">
         <v-text-field v-model="keywords" :counter="10" label="keywords" required></v-text-field>
-        <mu-button v-for="(item, index) in menus" :key="index" :color="item.icon" class="mr-3" @click="handleClick(item.title)" large>
-          {{ item.title }}
-        </mu-button>
+        <span v-for="(item, index) in menus" :key="index" class="gutter">
+          <mu-button color="teal" v-if="item.title === '搜索'">搜索</mu-button>
+          <mu-button color="error" v-if="item.title === '新增'">新增</mu-button>
+          <mu-button color="success" v-if="item.title === '导入'">导入</mu-button>
+          <mu-button color="error" v-if="item.title === '导出'">导出</mu-button>
+        </span>
       </v-col>
     </v-row>
     <v-card>
@@ -93,7 +96,6 @@ export default {
     }
   },
   created() {
-    alert(this.$options.name)
     for (let i = 0; i < this.menuList.length; i++) {
       let parent = this.menuList[i]
       for (let j = 0; j < parent.subMenus.length; j++) {

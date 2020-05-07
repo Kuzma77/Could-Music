@@ -93,6 +93,12 @@
         </v-row>
       </v-container>
     </v-content> -->
+    <mu-dialog title="请选择您的身份进入系统" width="360" :open.sync="openSimple">
+      <mu-flex class="select-control-row" :key="'radio ' + index + 1" v-for="(role, index) in roles">
+        <mu-radio :value="index + 1" v-model="radio" :label="role.roleName"></mu-radio>
+      </mu-flex>
+      <mu-button slot="actions" flat color="primary" @click="gotoIndex(radio)">Sure</mu-button>
+    </mu-dialog>
   </v-app>
 </template>
 
@@ -101,36 +107,71 @@ export default {
   name: 'Auth',
   data() {
     return {
-      user: null
+      //  user: null
+      roles: [],
+      radio: 0
     }
   },
   components: {},
   created() {
     console.log('回调')
-    let user = this.$route.query.user
-    if (user) {
-      console.log(user)
-      this.user = JSON.parse(user)
-      let admin = {
-        id: this.user.id,
-        account: 1111,
-        name: this.user.login,
-        role: 1,
-        avatar: this.user.avatar_url
+    let uId = this.$route.query.uId
+    this.axios.get(this.GLOBAL.baseUrl + '/sysAdmin/github/login?uId=' + uId).then((res) => {
+      if (res.data.code === 1) {
+        localStorage.setItem('token', res.data.data.token)
+        this.$store.commit('setToken', res.data.data.token)
+        let admin = {
+          id: res.data.data.admin.id,
+          account: res.data.data.admin.account,
+          name: res.data.data.admin.name,
+          role: res.data.data.admin.roles,
+          avatar: res.data.data.admin.avatar
+        }
+        localStorage.setItem('admin', JSON.stringify(admin))
+        this.$store.commit('setAdmin', JSON.stringify(admin))
+        this.roles = res.data.data.admin.roles
+        // const roleId = res.data.data.admin.roles[0].roleId
+        // localStorage.setItem('roleId', roleId)
+        // this.$router.push('/')
+        if (this.roles.length > 1) {
+          this.openSimple = true
+        } else {
+          //只有一个角色
+          const roleId = res.data.data.admin.roles[0].roleId
+          //将roleId存入全局
+          localStorage.setItem('roleId', roleId)
+          this.$store.commit('setRoleId', roleId)
+          this.$router.push('/')
+          // this.$router.push({
+          //   path: '/',
+          //   query: {
+          //     roleId: roleId
+          //   }
+          // })
+        }
       }
-      localStorage.setItem('token', this.user.id)
-      localStorage.setItem('admin', JSON.stringify(admin))
-      this.$store.commit('setAdmin', JSON.stringify(admin))
-    }
-    window.location.href = 'http://localhost:8081/#/dashboard'
+    })
+    // let user = this.$route.query.user
+    // if (user) {
+    //   console.log(user)
+    //   this.user = JSON.parse(user)
+    // }
+    // window.location.href = 'http://localhost:8081/#/dashboard'
   },
   mounted() {},
   methods: {
-    // logout() {
-    //   localStorage.removeItem('token')
-    //   localStorage.removeItem('user')
-    //   this.$router.push('/login')
-    // }
+    gotoIndex(roleId) {
+      //带着用户选择的roleId跳到首页
+      // this.$router.push({
+      //   path: '/',
+      //   query: {
+      //     roleId: roleId
+      //   }
+      // })
+      //将roleId存入全局
+      localStorage.setItem('roleId', roleId)
+      this.$router.push('/')
+    }
   },
   computed: {}
 }

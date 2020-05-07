@@ -1,103 +1,105 @@
 <template>
-  <v-row class="bc">
-    <v-col cols="2">
-      <v-card height="700" width="256">
-        <v-navigation-drawer v-model="drawer" :dark="dark" :src="bg">
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title
-                class="title cursor"
-                @click="
-                  dark = !dark
-                  background = !background
-                "
-              >
-                <h2>C Music</h2>
-              </v-list-item-title>
-            </v-list-item-content>
+  <v-app>
+    <v-navigation-drawer v-model="drawer" app clipped color="secondary" :mini-variant.sync="mini">
+      <v-list dense>
+        <v-app-bar-nav-icon @click.stop="mini = !mini"></v-app-bar-nav-icon>
+        <v-list-item two-line>
+          <v-list-item-avatar>
+            <img :src="admin.avatar" @click="handleClick()" />
+            <input type="file" @change="uploadImage($event)" style="display: none;" id="fileBox1" />
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>{{ admin.name }}</v-list-item-title>
+            <v-list-item-subtitle class="gutter" v-if="roleId == 1">身份：admin</v-list-item-subtitle>
+            <v-list-item-subtitle class="gutter" v-if="roleId == 2">身份：editor</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-divider></v-divider>
+        <v-list>
+          <v-list-group v-for="(menu, parent) in menuList" :key="parent" v-model="menu.active" no-action>
+            <template v-slot:activator v-ripple>
+              <v-list-item-icon>
+                <v-icon>{{ menu.icon }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content v-if="menu.subMenus.length === 0">
+                <v-list-item-title @click="$router.push(menu.path)">{{ menu.title }}</v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-content v-else>
+                <v-list-item-title>{{ menu.title }}</v-list-item-title>
+              </v-list-item-content>
+            </template>
+
+            <v-list-item v-for="(subMenu, current) in menu.subMenus" :key="current" v-ripple link>
+              <v-list-item-icon>
+                <v-icon>{{ subMenu.icon }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <router-link :to="{ name: subMenu.path }">
+                  <v-list-item-title class="link" :to="{ name: subMenu.path }">{{ subMenu.title }}</v-list-item-title>
+                </router-link>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-group>
+        </v-list>
+      </v-list>
+    </v-navigation-drawer>
+    <v-app-bar app clipped-left color="secondary">
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>My Music</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon>
+        <v-icon>mdi-heart</v-icon>
+      </v-btn>
+      <v-btn icon>
+        <v-icon>mdi-magnify</v-icon>
+      </v-btn>
+      <v-menu left bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+        <v-list color="secondary">
+          <v-list-item color="secondary" @click="$router.push('/profile')">
+            <v-list-item-title>MyProfile</v-list-item-title>
           </v-list-item>
-          <v-list-item two-line>
-            <v-list-item-avatar>
-              <img :src="admin.avatar" @click="handleClick()" />
-              <input type="file" @change="uploadImage($event)" style="display: none;" id="fileBox1" />
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title
-                ><h3 class="gutter">{{ admin.name }}</h3>
-              </v-list-item-title>
-              <v-list-item-subtitle class="gutter" v-if="this.$route.query.roleId === 1">admin</v-list-item-subtitle>
-              <v-list-item-subtitle class="gutter" v-if="this.$route.query.roleId === 2">editor</v-list-item-subtitle>
-            </v-list-item-content>
+          <v-list-item color="secondary" @click="logout()">
+            <v-list-item-title>Logout</v-list-item-title>
           </v-list-item>
-
-          <v-divider></v-divider>
-
-          <v-list>
-            <v-list-group v-for="(menu, parent) in menuList" :key="parent" v-model="menu.active" no-action>
-              <template v-slot:activator v-ripple>
-                <v-list-item-icon>
-                  <v-icon>{{ menu.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content v-if="menu.subMenus.length === 0">
-                  <router-link :to="menu.path" v-if="menu.subMenus.length === 0">
-                    <v-list-item-title class="link">{{ menu.title }}</v-list-item-title>
-                  </router-link>
-                </v-list-item-content>
-                <v-list-item-content v-else>
-                  <v-list-item-title class="link">{{ menu.title }}</v-list-item-title>
-                </v-list-item-content>
-              </template>
-
-              <v-list-item v-for="(subMenu, current) in menu.subMenus" :key="current" v-ripple link>
-                <v-list-item-icon>
-                  <v-icon>{{ subMenu.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <router-link :to="{ name: subMenu.path }">
-                    <v-list-item-title class="link">{{ subMenu.title }}</v-list-item-title>
-                  </router-link>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-group>
-          </v-list>
-        </v-navigation-drawer>
-      </v-card>
-    </v-col>
-    <v-col cols="10">
-      <header>
-        <mu-appbar style="width: 100%;" color="grey">
-          <mu-button icon slot="left">
-            <mu-icon value="CM"></mu-icon>
-          </mu-button>
-          Music
-          <mu-menu slot="right">
-            <mu-button flat>My</mu-button>
-            <mu-list slot="content">
-              <router-link to="/profile">
-                <mu-list-item button>
-                  <mu-list-item-content>
-                    <mu-list-item-title>MyProfile</mu-list-item-title>
-                  </mu-list-item-content>
-                </mu-list-item>
-              </router-link>
+        </v-list>
+        <!-- <mu-menu slot="right">
+          <mu-button flat>My</mu-button>
+          <mu-list slot="content">
+            <router-link to="/profile">
               <mu-list-item button>
                 <mu-list-item-content>
-                  <mu-list-item-title>Settings</mu-list-item-title>
+                  <mu-list-item-title>MyProfile</mu-list-item-title>
                 </mu-list-item-content>
               </mu-list-item>
-              <mu-list-item @click="logout()" button>
-                <mu-list-item-content>
-                  <mu-list-item-title>Logout</mu-list-item-title>
-                </mu-list-item-content>
-              </mu-list-item>
-            </mu-list>
-          </mu-menu>
-        </mu-appbar>
-      </header>
-
-      <router-view />
-    </v-col>
-  </v-row>
+            </router-link>
+            <mu-list-item button>
+              <mu-list-item-content>
+                <mu-list-item-title>Settings</mu-list-item-title>
+              </mu-list-item-content>
+            </mu-list-item>
+            <mu-list-item @click="logout()" button>
+              <mu-list-item-content>
+                <mu-list-item-title>Logout</mu-list-item-title>
+              </mu-list-item-content>
+            </mu-list-item>
+          </mu-list>
+        </mu-menu> -->
+      </v-menu>
+    </v-app-bar>
+    <v-content class="anchor">
+      <v-container class="fill-height">
+        <router-view />
+      </v-container>
+    </v-content>
+    <v-footer app color="secondary">
+      <v-col class="text-center" cols="12"> {{ new Date().getFullYear() }} — <strong>Vuetify</strong> </v-col>
+    </v-footer>
+  </v-app>
 </template>
 
 <script>
@@ -105,11 +107,14 @@ export default {
   name: 'Layout',
   data() {
     return {
+      roleId: 0,
       parent: 0,
       current: 0,
       //admin: this.$store.state.admin,
       menuList: [],
       drawer: true,
+      mini: true,
+      show: false,
       background: true,
       dark: false,
       value: true
@@ -120,7 +125,7 @@ export default {
     //取得前一个页面传过来的roleId
     // let roleId = this.$route.query.roleId
     //console.log(roleId)
-    // alert(localStorage.getItem('roleId'))
+    this.roleId = localStorage.getItem('roleId')
     this.axios.get(this.GLOBAL.baseUrl + '/sysRole?roleId=' + localStorage.getItem('roleId')).then((res) => {
       console.log(res)
       this.menuList = res.data.data.menus

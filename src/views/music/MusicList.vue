@@ -7,16 +7,19 @@
         <mu-list-item-content v-html="scope.highlight"></mu-list-item-content>
       </template>
     </mu-auto-complete>
-    <mu-button v-for="(item, index) in menus" :key="index" :color="item.icon" class="mr-3" @click="handleClick(item.title)" large>
-      {{ item.title }}
-    </mu-button>
+    <span v-for="(item, index) in menus" :key="index" class="gutter">
+      <mu-button color="teal" v-if="item.title === '搜索'">搜索</mu-button>
+      <mu-button color="error" v-if="item.title === '导出'">导出</mu-button>
+      <mu-button color="success" v-if="item.title === '新增'">新建</mu-button>
+      <mu-button color="error" v-if="item.title === '删除'">删除</mu-button>
+    </span>
     <v-data-iterator :items="allItems" :items-per-page.sync="itemsPerPage" :page="page" :search="search" hide-default-footer>
       <template v-slot:default="props">
         <mu-row>
           <mu-col span="4" v-for="item in props.items" :key="item.songListId"
             ><div class="grid-cell">
               <template>
-                <v-card class="mx-auto" max-width="400" min-height="400" style="margin:5px">
+                <v-card class="mx-auto ma-lg-5" max-width="400" min-height="400">
                   <v-img class="white--text align-end" height="200px" :src="item.thumbnail"> </v-img>
                   <v-card-title class="subheading font-weight-bold">{{ item.songListName }}</v-card-title>
                   <v-card-text class="text--primary">
@@ -36,9 +39,9 @@
                     <v-btn color="orange" @click="exportSongs(item.songListId)" text>
                       Explore
                     </v-btn>
-                    <v-btn color="red" text>
+                    <!-- <v-btn color="red" text>
                       Delete
-                    </v-btn>
+                    </v-btn> -->
                   </v-card-actions>
                 </v-card>
               </template>
@@ -133,7 +136,6 @@ export default {
     }
   },
   created() {
-    alert(this.$options.name)
     for (let i = 0; i < this.menuList.length; i++) {
       let parent = this.menuList[i]
       for (let j = 0; j < parent.subMenus.length; j++) {

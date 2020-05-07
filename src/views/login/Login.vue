@@ -5,7 +5,7 @@
     </mu-alert>
     <mu-container>
       <mu-form ref="form" :model="validateForm" class="login-form">
-        <mu-form-item label="用户名" prop="username" :rules="usernameRules">
+        <mu-form-item label="手机号" prop="username" :rules="usernameRules">
           <mu-text-field v-model="validateForm.username" prop="username"></mu-text-field>
         </mu-form-item>
         <mu-form-item label="密码" prop="password" :rules="passwordRules">
@@ -62,7 +62,7 @@ export default {
       ],
       argeeRules: [{ validate: (val) => !!val, message: '必须同意用户协议' }],
       validateForm: {
-        username: '18805167526',
+        username: '',
         password: '',
         isAgree: false
       },
